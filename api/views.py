@@ -1,4 +1,4 @@
-# from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 # from django.http import JsonResponse
 from students.models import Student
 from .serializer import StudentSerializer, EmployeeSerializer
@@ -8,7 +8,7 @@ from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from employee.models import Employee
 from django.http import Http404
-from rest_framework import mixins, generics
+from rest_framework import mixins, generics, viewsets
 
 # Create your views here.
 @api_view(['GET', 'POST'])
@@ -121,15 +121,36 @@ def studentDetailView(request, pk):
 
 
 
-# Generics  both same class
-class Employees(generics.ListCreateAPIView):
-# class Employees(generics.ListAPIView, generics.CreateAPIView):
-    queryset = Employee.objects.all()
-    serializer_class = EmployeeSerializer
+# # Generics  both same class
+# class Employees(generics.ListCreateAPIView):
+# # class Employees(generics.ListAPIView, generics.CreateAPIView):
+#     queryset = Employee.objects.all()
+#     serializer_class = EmployeeSerializer
 
 
-# class EmployeeDetail(generics.RetrieveAPIView, generics.UpdateAPIView, generics.DestroyAPIView):
-class EmployeeDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Employee.objects.all()
-    serializer_class = EmployeeSerializer
-    lookup_field = 'pk'  
+# # class EmployeeDetail(generics.RetrieveAPIView, generics.UpdateAPIView, generics.DestroyAPIView):
+# class EmployeeDetail(generics.RetrieveUpdateDestroyAPIView):
+#     queryset = Employee.objects.all()
+#     serializer_class = EmployeeSerializer
+#     lookup_field = 'pk'  
+
+ 
+ 
+# Withs viewset we dont need seprate Employee and EmployeeDetails Class
+class EmployeeViewSet(viewsets.ViewSet):
+    def list(self, request): #list automatically listed obj inbuilt
+        queryset = Employee.objects.all()
+        serializer = EmployeeSerializer(queryset, many=True)
+        return Response(serializer.data)
+    
+    def create(self, request):
+        serializer = EmployeeSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def retrieve(self, request, pk=None):
+        employee = get_object_or_404(Employee, pk=pk)
+        serializer = EmployeeSerializer(employee)
+        return Response(serializer.data, status=status.HTTP_200_OK)

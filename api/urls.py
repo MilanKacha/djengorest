@@ -3,8 +3,7 @@ from . import views
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
-router.register('employees', views.EmployeeViewSet)
-router.register('employee/<int:pk>', )
+router.register('employees', views.EmployeeViewSet, basename="employees")
 
 urlpatterns = [
     path('students/', views.studentView),
