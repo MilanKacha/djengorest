@@ -170,6 +170,7 @@ class BlogView(generics.ListCreateAPIView):
     queryset = Blogs.objects.all()
     serializer_class = BlogSerializer
     pagination_class = CustomPagination
+    filterset_fields = ['blog_title']
     
 class CommentsView(generics.ListCreateAPIView):
     queryset = Comment.objects.all()
